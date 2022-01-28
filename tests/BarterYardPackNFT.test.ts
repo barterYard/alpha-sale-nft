@@ -1,9 +1,12 @@
 import path from "path";
 import {
   emulator,
+  executeScript,
   init,
+  sendTransaction,
 } from "flow-js-testing";
 import { deployContracts } from "./utils/deployContracts";
+import { getAddressMap } from "./utils/helpers";
 
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(10000);
@@ -31,5 +34,22 @@ describe("BarterYardPackNFT", () => {
     );
 
     expect(initEvent).toBeDefined();
+  });
+
+  test("should setup account", async () => {
+    await deployContracts();
+    const addressMap = await getAddressMap()
+
+    const signers = [ addressMap.BarterYardPackNFT ];
+
+    const [_tx, txError] = await sendTransaction({ name: 'setup_account', signers, addressMap });
+
+    expect(txError).toBeNull()
+
+    const args = [ addressMap.BarterYardPackNFT ];
+    const [result, scriptError] = await executeScript({ name: 'check_account', args });
+
+    expect(result).toBeTruthy()
+    expect(scriptError).toBeNull()
   });
 })

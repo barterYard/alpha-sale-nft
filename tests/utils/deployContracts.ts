@@ -1,6 +1,5 @@
 import {
   deployContractByName,
-  getContractCode,
   getServiceAddress,
   mintFlow,
 } from "flow-js-testing";
