@@ -27,7 +27,7 @@ pub contract NFTAirDrop {
         pub fun deposit(token: @NonFungibleToken.NFT, publicKey: [UInt8]) {
             let collection = self.collection.borrow()!
 
-            self.claims[token.iNFTd] = publicKey
+            self.claims[token.id] = publicKey
 
             collection.deposit(token: <- token)
         }
