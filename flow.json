@@ -25,6 +25,12 @@
       "aliases": {
         "emulator": "f8d6e0586b0a20c7"
       }
+    },
+    "NFTAirDrop": {
+      "source": "./contracts/NFTAirDrop.cdc",
+      "aliases": {
+        "emulator": "f8d6e0586b0a20c7"
+      }
     }
   },
   "networks": {
@@ -40,6 +46,10 @@
     "testnet-account": {
       "address": "0xd9040264c46a3158",
       "key": "$FLOW_TESTNET_PRIVATE_KEY"
+    },
+    "user": {
+      "address": "0xd22e30fd08ef4f71",
+      "key": "$FLOW_TESTNET_PRIVATE_KEY"
     }
   },
   "deployments": {
@@ -47,12 +57,14 @@
       "emulator-account": [
         "NonFungibleToken",
         "MetadataViews",
-        "BarterYardPackNFT"
+        "BarterYardPackNFT",
+        "NFTAirDrop"
       ]
     },
     "testnet": {
       "testnet-account": [
-        "BarterYardPackNFT"
+        "BarterYardPackNFT",
+        "NFTAirDrop"
       ]
     }
   }

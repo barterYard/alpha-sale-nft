@@ -47,6 +47,18 @@ pub contract BarterYardPackNFT: NonFungibleToken {
         }
     }
 
+    pub struct PackMetadataDisplay {
+        pub let packPartId: Int
+        pub let edition: UInt16
+        init(
+            packPartId: Int,
+            edition: UInt16
+        ) {
+            self.packPartId = packPartId
+            self.edition = edition
+        }
+    }
+
     pub resource NFT: NonFungibleToken.INFT, MetadataViews.Resolver {
         pub let id: UInt64
         pub let packPartId: Int
@@ -74,7 +86,8 @@ pub contract BarterYardPackNFT: NonFungibleToken {
     
         pub fun getViews(): [Type] {
             return [
-                Type<MetadataViews.Display>()
+                Type<MetadataViews.Display>(),
+                Type<PackMetadataDisplay>()
             ]
         }
 
@@ -87,6 +100,11 @@ pub contract BarterYardPackNFT: NonFungibleToken {
                         thumbnail: MetadataViews.HTTPFile(
                             url: self.thumbnail
                         ),
+                    )
+                case Type<PackMetadataDisplay>():
+                    return PackMetadataDisplay(
+                        packPartId: self.packPartId,
+                        edition: self.edition
                     )
             }
 
@@ -181,24 +199,24 @@ pub contract BarterYardPackNFT: NonFungibleToken {
     //
     pub resource Admin {
 
-        // mintNFT mints a new NFT with a new ID
+        // mintNFT mints a new NFT with a new Id
         // and deposit it in the recipients collection using their collection reference
         pub fun mintNFT(
             recipient: &{NonFungibleToken.CollectionPublic},
-            packPartID: Int,
+            packPartId: Int,
             description: String,
             thumbnail: String,
         ) {
 
-            let packPart = BarterYardPackNFT.packParts[packPartID]
-                ?? panic("[Admin](mintNFT): can't mint nft because invalid packPartID was providen")
+            let packPart = BarterYardPackNFT.packParts[packPartId]
+                ?? panic("[Admin](mintNFT): can't mint nft because invalid packPartId was providen")
 
             let edition = packPart.increment()
 
             // create a new NFT
             var newNFT <- create NFT(
                 id: BarterYardPackNFT.totalSupply,
-                packPartId: packPartID,
+                packPartId: packPartId,
                 name: packPart.name,
                 description: description,
                 thumbnail: thumbnail,
@@ -222,6 +240,10 @@ pub contract BarterYardPackNFT: NonFungibleToken {
             )
             BarterYardPackNFT.packParts.insert(key: newPackId, packPart)
         }
+    }
+
+    pub fun getPackPartById(packPartId: Int): BarterYardPackNFT.PackPart? {
+        return self.packParts[packPartId]
     }
     
     init() {
