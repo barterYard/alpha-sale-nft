@@ -7,6 +7,7 @@ import {
 } from "flow-js-testing";
 import { deployContracts } from "./utils/deployContracts";
 import { getAddressMap } from "./utils/helpers";
+import { generateKeyPair } from "./utils/crypto";
 
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(10000);
@@ -40,16 +41,46 @@ describe("BarterYardPackNFT", () => {
     await deployContracts();
     const addressMap = await getAddressMap()
 
-    const signers = [ addressMap.BarterYardPackNFT ];
-
+    /* Setup account tx */
+    const signers = [addressMap.BarterYardPackNFT];
     const [_tx, txError] = await sendTransaction({ name: 'setup_account', signers, addressMap });
-
     expect(txError).toBeNull()
 
-    const args = [ addressMap.BarterYardPackNFT ];
+    /* Check account script */
+    const args = [addressMap.BarterYardPackNFT];
     const [result, scriptError] = await executeScript({ name: 'check_account', args });
-
     expect(result).toBeTruthy()
     expect(scriptError).toBeNull()
   });
+
+  test('should allow admin to mint NFT', async () => {
+    await deployContracts();
+    const addressMap = await getAddressMap()
+    const signers = [addressMap.BarterYardPackNFT];
+
+    // Create Pack Part
+    let args = ["Alpha", 1000];
+    let [_tx, txError] = await sendTransaction({ name: 'add_pack_part', signers, args, addressMap });
+
+    expect(txError).toBeNull()
+
+    // Create NFT
+    const keys = generateKeyPair();
+    args = [0, "Description", "ipfs::url", keys.privateKey];
+    [_tx, txError] = await sendTransaction({ name: 'airdrop/airdrop_mint', signers, args, addressMap });
+    
+    expect(txError).toBeNull()
+  })
+
+  test('should not create NFT if pack part was not created', async () => {
+    await deployContracts();
+    const addressMap = await getAddressMap()
+    const signers = [addressMap.BarterYardPackNFT];
+
+    // Create NFT
+    const args = [0, "test", "test", "test"];
+    const [_tx, txError] = await sendTransaction({ name: 'airdrop/airdrop_mint', signers, args, addressMap });
+
+    expect(txError).toContain('can\'t mint nft because invalid packPartId was providen')
+  })
 })
