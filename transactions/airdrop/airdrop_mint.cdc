@@ -2,11 +2,10 @@ import NonFungibleToken from "../../contracts/NonFungibleToken.cdc"
 import BarterYardPackNFT from "../../contracts/BarterYardPackNFT.cdc"
 import NFTAirDrop from "../../contracts/NFTAirDrop.cdc"
 
-transaction(packPartId: Int, description: String, thumbnail: String) {
+transaction(packPartId: Int, description: String, thumbnail: String, publicKey: String) {
     
     let admin: &BarterYardPackNFT.Admin
     let drop: &NFTAirDrop.Drop
-    let recipient: &{NonFungibleToken.CollectionPublic}
 
     prepare(signer: AuthAccount) {
         self.admin = signer
@@ -16,11 +15,11 @@ transaction(packPartId: Int, description: String, thumbnail: String) {
         if let existingDrop = signer.borrow<&NFTAirDrop.Drop>(from: NFTAirDrop.DropStoragePath) {
             self.drop = existingDrop
         } else {
-            self.recipient = signer.getCapability<&{NonFungibleToken.Provider, NonFungibleToken.CollectionPublic}>(BarterYardPackNFT.CollectionPrivatePath)
+            let collection = signer.getCapability<&{NonFungibleToken.Provider, NonFungibleToken.CollectionPublic}>(BarterYardPackNFT.CollectionPrivatePath)
 
             let drop <- NFTAirDrop.createDrop(
                 nftType: Type<@BarterYardPackNFT.NFT>(),
-                collection: self.recipient
+                collection: collection
             )
 
             self.drop = &drop as &NFTAirDrop.Drop
@@ -36,10 +35,9 @@ transaction(packPartId: Int, description: String, thumbnail: String) {
 
     execute {
         let token <- self.admin.mintNFT(
-            recipient: self.recipient,
-            packPartId: Int,
-            description: String,
-            thumbnail: String
+            packPartId: packPartId,
+            description: description,
+            thumbnail: thumbnail
         )
 
         self.drop.deposit(token: <- token, publicKey: publicKey.decodeHex())

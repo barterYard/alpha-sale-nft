@@ -11,6 +11,7 @@ pub contract BarterYardPackNFT: NonFungibleToken {
 
     pub let CollectionStoragePath: StoragePath
     pub let CollectionPublicPath: PublicPath
+    pub let CollectionPrivatePath: PrivatePath
     pub let AdminStoragePath: StoragePath
 
     access(self) let packParts: {Int: PackPart}
@@ -20,7 +21,7 @@ pub contract BarterYardPackNFT: NonFungibleToken {
         pub var totalSupply: UInt16
         pub fun increment(): UInt16 {
             pre {
-                self.totalSupply + 1 > self.maxSupply :
+                self.totalSupply + 1 <= self.maxSupply :
                     "[SupplyManager](increment): can't increment totalSupply as maxSupply has been reached"
             }
         }
@@ -202,11 +203,10 @@ pub contract BarterYardPackNFT: NonFungibleToken {
         // mintNFT mints a new NFT with a new Id
         // and deposit it in the recipients collection using their collection reference
         pub fun mintNFT(
-            recipient: &{NonFungibleToken.CollectionPublic},
             packPartId: Int,
             description: String,
             thumbnail: String,
-        ) {
+        ) : @BarterYardPackNFT.NFT {
 
             let packPart = BarterYardPackNFT.packParts[packPartId]
                 ?? panic("[Admin](mintNFT): can't mint nft because invalid packPartId was providen")
@@ -223,10 +223,9 @@ pub contract BarterYardPackNFT: NonFungibleToken {
                 edition: edition,
             )
 
-            // deposit it in the recipient's account using their reference
-            recipient.deposit(token: <-newNFT)
-
             BarterYardPackNFT.totalSupply = BarterYardPackNFT.totalSupply + 1
+
+            return <- newNFT
         }
 
         // Create a new pack part
@@ -254,6 +253,7 @@ pub contract BarterYardPackNFT: NonFungibleToken {
         // Set the named paths
         self.CollectionStoragePath = /storage/BarterYardPackNFTCollection
         self.CollectionPublicPath = /public/BarterYardPackNFTCollection
+        self.CollectionPrivatePath = /private/BarterYardPackNFTCollection
         self.AdminStoragePath = /storage/BarterYardPackNFTMinter
 
         // Create a Collection resource and save it to storage
@@ -265,6 +265,8 @@ pub contract BarterYardPackNFT: NonFungibleToken {
             self.CollectionPublicPath,
             target: self.CollectionStoragePath
         )
+
+        self.account.link<&BarterYardPackNFT.Collection>(BarterYardPackNFT.CollectionPrivatePath, target: BarterYardPackNFT.CollectionStoragePath)
 
         // Create an Admin resource and save it to storage
         let admin <- create Admin()
