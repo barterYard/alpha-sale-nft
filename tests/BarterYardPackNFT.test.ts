@@ -2,12 +2,13 @@ import path from "path";
 import {
   emulator,
   executeScript,
+  getAccountAddress,
   init,
   sendTransaction,
 } from "flow-js-testing";
 import { deployContracts } from "./utils/deployContracts";
 import { getAddressMap } from "./utils/helpers";
-import { generateKeyPair } from "./utils/crypto";
+import { generateKeyPair, generateNFTClaim } from "./utils/crypto";
 
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(10000);
@@ -66,7 +67,7 @@ describe("BarterYardPackNFT", () => {
 
     // Create NFT
     const keys = generateKeyPair();
-    args = [0, "Description", "ipfs::url", keys.privateKey];
+    args = [0, "Description", "ipfs::url", keys.publicKey];
     [_tx, txError] = await sendTransaction({ name: 'airdrop/airdrop_mint', signers, args, addressMap });
     
     expect(txError).toBeNull()
@@ -78,9 +79,69 @@ describe("BarterYardPackNFT", () => {
     const signers = [addressMap.BarterYardPackNFT];
 
     // Create NFT
-    const args = [0, "test", "test", "test"];
+    const keys = generateKeyPair();
+    const args = [0, "Description", "ipfs::url", keys.publicKey];
     const [_tx, txError] = await sendTransaction({ name: 'airdrop/airdrop_mint', signers, args, addressMap });
 
     expect(txError).toContain('can\'t mint nft because invalid packPartId was providen')
+  })
+
+  test('should be able to claim NFT with token', async () => {
+    await deployContracts();
+    const Alice = await getAccountAddress("Alice");
+    const addressMap = await getAddressMap()
+    const dropAddress = addressMap.BarterYardPackNFT
+
+    // Create Pack Part
+    await sendTransaction({
+      name: 'add_pack_part',
+      signers: [dropAddress],
+      args: ["Alpha", 1000],
+      addressMap
+    });
+
+    // Create NFT
+    const keys = generateKeyPair();
+    await sendTransaction({
+      name: 'airdrop/airdrop_mint',
+      signers: [dropAddress],
+      args: [0, "Description", "ipfs::url", keys.publicKey],
+      addressMap
+    });
+
+    // Setup user account
+    await sendTransaction({
+      name: 'setup_account',
+      signers: [Alice],
+      addressMap
+    });
+
+    const signature = generateNFTClaim(Alice, 0, keys.privateKey)
+
+    // Redeem NFT
+    const [,txError] = await sendTransaction({
+      name: 'airdrop/claim_nft',
+      signers: [Alice],
+      args: [
+        dropAddress,
+        0,
+        signature,
+      ],
+      addressMap
+    });
+    expect(txError).toBeNull()
+
+    // Account should have NFT
+    const [result, scriptError] = await executeScript({ name: 'get_nft', args: [Alice, 0] });
+    expect(result).toEqual({
+      tokenId: 0,
+      name: 'Alpha',
+      description: 'Description',
+      thumbnail: {
+        url: 'ipfs::url',
+      },
+      owner: Alice,
+    })
+    expect(scriptError).toBeNull()
   })
 })

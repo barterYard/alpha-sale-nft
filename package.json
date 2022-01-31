@@ -10,6 +10,7 @@
     "@onflow/types": "^0.0.6",
     "@types/jest": "^27.4.0",
     "babel-jest": "^27.4.6",
+    "bn.js": "^5.2.0",
     "flow-js-testing": "^0.2.2",
     "jest": "^27.4.7",
     "jest-environment-node": "^27.4.6"
