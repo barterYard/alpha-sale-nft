@@ -21,7 +21,7 @@ pub contract BarterYardPackNFT: NonFungibleToken {
         pub var totalSupply: UInt16
         pub fun increment(): UInt16 {
             pre {
-                self.totalSupply + 1 <= self.maxSupply :
+                self.totalSupply < self.maxSupply :
                     "[SupplyManager](increment): can't increment totalSupply as maxSupply has been reached"
             }
         }
