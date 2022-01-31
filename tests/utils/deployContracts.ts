@@ -1,5 +1,7 @@
 import {
+  deployContract,
   deployContractByName,
+  getContractCode,
   getServiceAddress,
   mintFlow,
 } from "flow-js-testing";
@@ -11,15 +13,17 @@ export async function deployContracts() {
 
   await mintFlow(to, "1000");
 
-  await deployContractByName({
+  await deployContract({
     to,
     name: "NonFungibleToken",
+    code: await getContractCode({ name: "lib/NonFungibleToken", addressMap }),
     addressMap,
   });
-
-  await deployContractByName({
+  
+  await deployContract({
     to,
     name: "MetadataViews",
+    code: await getContractCode({ name: "lib/MetadataViews", addressMap }),
     addressMap,
   });
 

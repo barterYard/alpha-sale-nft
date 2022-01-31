@@ -1,4 +1,4 @@
-import NonFungibleToken from "./NonFungibleToken.cdc"
+import NonFungibleToken from "./lib/NonFungibleToken.cdc"
 
 pub contract NFTAirDrop {
 

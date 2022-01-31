@@ -1,5 +1,5 @@
-import NonFungibleToken from "./NonFungibleToken.cdc"
-import MetadataViews from "./MetadataViews.cdc"
+import NonFungibleToken from "./lib/NonFungibleToken.cdc"
+import MetadataViews from "./lib/MetadataViews.cdc"
 
 pub contract BarterYardPackNFT: NonFungibleToken {
 
@@ -14,7 +14,7 @@ pub contract BarterYardPackNFT: NonFungibleToken {
     pub let CollectionPrivatePath: PrivatePath
     pub let AdminStoragePath: StoragePath
 
-    access(self) let packParts: {Int: PackPart}
+    access(contract) let packParts: {Int: PackPart}
 
     pub struct interface SupplyManager {
         pub let maxSupply: UInt16

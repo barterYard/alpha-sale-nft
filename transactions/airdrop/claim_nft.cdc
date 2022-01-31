@@ -1,6 +1,6 @@
 import BarterYardPackNFT from "../../contracts/BarterYardPackNFT.cdc"
-import NFTAirDrop from "../../contracts/NFTAirDrop.cdc"
-import NonFungibleToken from "../../contracts/NonFungibleToken.cdc"
+import NFTAirDrop from "../../contracts/lib/NFTAirDrop.cdc"
+import NonFungibleToken from "../../contracts/lib/NonFungibleToken.cdc"
 
 transaction(dropAddress: Address, id: UInt64, signature: String) {
 

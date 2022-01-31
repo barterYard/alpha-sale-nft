@@ -1,4 +1,4 @@
-import NonFungibleToken from "../contracts/NonFungibleToken.cdc"
+import NonFungibleToken from "../contracts/lib/NonFungibleToken.cdc"
 import BarterYardPackNFT from "../contracts/BarterYardPackNFT.cdc"
 
 // This transaction configures an account to hold BarterYardPackNFT Items.
