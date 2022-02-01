@@ -7,14 +7,14 @@
   },
   "contracts": {
     "NonFungibleToken": {
-      "source": "./contracts/NonFungibleToken.cdc",
+      "source": "./contracts/lib/NonFungibleToken.cdc",
       "aliases": {
         "emulator": "f8d6e0586b0a20c7",
         "testnet": "631e88ae7f1d7c20"
       }
     },
     "MetadataViews": {
-      "source": "./contracts/MetadataViews.cdc",
+      "source": "./contracts/lib/MetadataViews.cdc",
       "aliases": {
         "emulator": "f8d6e0586b0a20c7",
         "testnet": "631e88ae7f1d7c20"
@@ -44,7 +44,7 @@
       "key": "680fa28962650ef346a7edf23d63967b0fcf44958488d0d48f8539ece6e92eba"
     },
     "testnet-account": {
-      "address": "0xd9040264c46a3158",
+      "address": "0xd81abe1960ec10b9",
       "key": "$FLOW_TESTNET_PRIVATE_KEY"
     },
     "user": {
