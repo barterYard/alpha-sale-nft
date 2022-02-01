@@ -44,11 +44,11 @@
       "key": "680fa28962650ef346a7edf23d63967b0fcf44958488d0d48f8539ece6e92eba"
     },
     "testnet-account": {
-      "address": "0xd81abe1960ec10b9",
+      "address": "0x3c7d07c471161066",
       "key": "$FLOW_TESTNET_PRIVATE_KEY"
     },
     "user": {
-      "address": "0xd22e30fd08ef4f71",
+      "address": "0xd3308c80ac696e90",
       "key": "$FLOW_TESTNET_PRIVATE_KEY"
     }
   },
