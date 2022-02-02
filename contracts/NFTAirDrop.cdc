@@ -13,7 +13,7 @@ pub contract NFTAirDrop {
 
     pub resource interface DropPublic {
         pub fun claim(
-            id: UInt64, 
+            id: UInt64,
             signature: [UInt8],
             receiver: &{NonFungibleToken.CollectionPublic}
         )

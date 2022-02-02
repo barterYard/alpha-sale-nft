@@ -1,6 +1,6 @@
-import BarterYardPackNFT from "../../contracts/BarterYardPackNFT.cdc"
+import BarterYardPackNFT from "../contracts/BarterYardPackNFT.cdc"
 
-transaction(packName: String, packSupply: UInt16) {
+transaction(name: String, description: String, ipfsThumbnailCid: String, ipfsThumbnailPath: String, maxSupply: UInt16) {
     
     let admin: &BarterYardPackNFT.Admin
 
@@ -11,9 +11,12 @@ transaction(packName: String, packSupply: UInt16) {
     }
 
     execute {
-        self.admin.newPackMembers(
-            packName: packName,
-            packSupply: packSupply
+        self.admin.createNewPack(
+            name: name,
+            description: description,
+            ipfsThumbnailCid: ipfsThumbnailCid,
+            ipfsThumbnailPath: ipfsThumbnailPath,
+            maxSupply: maxSupply
         )
     }
 }

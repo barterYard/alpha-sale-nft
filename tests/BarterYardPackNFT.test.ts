@@ -29,7 +29,7 @@ describe("BarterYardPackNFT", () => {
   });
 
   test("should deploy the contracts", async () => {
-    const [{ events }, error] = await deployContracts();
+    const [{ events }] = await deployContracts();
 
     const initEvent = events.find((e) =>
       (e.type as string).endsWith("BarterYardPackNFT.ContractInitialized")
@@ -41,7 +41,7 @@ describe("BarterYardPackNFT", () => {
   test("should setup account", async () => {
     await deployContracts();
     const addressMap = await getAddressMap()
-
+ 
     /* Setup account tx */
     const signers = [addressMap.BarterYardPackNFT];
     const [_tx, txError] = await sendTransaction({ name: 'setup_account', signers, addressMap });
@@ -60,14 +60,20 @@ describe("BarterYardPackNFT", () => {
     const signers = [addressMap.BarterYardPackNFT];
 
     // Create Pack Part
-    let args = ["Alpha", 1000];
+    let args = [
+      "Alpha",
+      "This alpha pass grant you a place in the first 1000 members of the pack",
+      "ipfsCID",
+      "ipfsPath",
+      1000
+    ];
     let [_tx, txError] = await sendTransaction({ name: 'add_pack_part', signers, args, addressMap });
 
     expect(txError).toBeNull()
 
     // Create NFT
     const keys = generateKeyPair();
-    args = [0, "Description", "ipfs::url", keys.publicKey];
+    args = [0, keys.publicKey];
     [_tx, txError] = await sendTransaction({ name: 'airdrop/airdrop_mint', signers, args, addressMap });
     
     expect(txError).toBeNull()
@@ -80,7 +86,7 @@ describe("BarterYardPackNFT", () => {
 
     // Create NFT
     const keys = generateKeyPair();
-    const args = [0, "Description", "ipfs::url", keys.publicKey];
+    const args = [0, keys.publicKey];
     const [_tx, txError] = await sendTransaction({ name: 'airdrop/airdrop_mint', signers, args, addressMap });
 
     expect(txError).toContain('can\'t mint nft because invalid packPartId was providen')
@@ -92,11 +98,22 @@ describe("BarterYardPackNFT", () => {
     const addressMap = await getAddressMap()
     const dropAddress = addressMap.BarterYardPackNFT
 
+    const name = "Alpha"
+    const description = "This alpha pass grant you a place in the first 1000 members of the pack"
+    const ipfsCID = "ipfsCID"
+    const ipfsPath = "ipfsPath"
+
     // Create Pack Part
     await sendTransaction({
       name: 'add_pack_part',
       signers: [dropAddress],
-      args: ["Alpha", 1000],
+      args: [
+        name,
+        description,
+        ipfsCID,
+        ipfsPath,
+        1000
+      ],
       addressMap
     });
 
@@ -105,7 +122,7 @@ describe("BarterYardPackNFT", () => {
     await sendTransaction({
       name: 'airdrop/airdrop_mint',
       signers: [dropAddress],
-      args: [0, "Description", "ipfs::url", keys.publicKey],
+      args: [0, keys.publicKey],
       addressMap
     });
 
@@ -135,13 +152,52 @@ describe("BarterYardPackNFT", () => {
     const [result, scriptError] = await executeScript({ name: 'get_nft', args: [Alice, 0] });
     expect(result).toEqual({
       tokenId: 0,
-      name: 'Alpha',
-      description: 'Description',
-      thumbnail: {
-        url: 'ipfs::url',
-      },
+      name,
+      description,
+      thumbnail: `ipfs://${ipfsCID}/${ipfsPath}`,
       owner: Alice,
     })
     expect(scriptError).toBeNull()
+  })
+
+  test('should not be able to mint more than max supply', async () => {
+    await deployContracts();
+    const addressMap = await getAddressMap()
+    const dropAddress = addressMap.BarterYardPackNFT
+
+    // Create Pack Part
+    await sendTransaction({
+      name: 'add_pack_part',
+      signers: [dropAddress],
+      args: [
+        "Alpha",
+        "This alpha pass grant you a place in the first 1000 members of the pack",
+        "ipfsCID",
+        "ipfsPath",
+        1
+      ],
+      addressMap
+    });
+
+    const keys = generateKeyPair();
+    
+    // Create NFT
+    await sendTransaction({
+      name: 'airdrop/airdrop_mint',
+      signers: [dropAddress],
+      args: [0, keys.publicKey],
+      addressMap
+    });
+
+    // Try to create a second NFT
+    const [_tx, txError] = await sendTransaction({
+      name: 'airdrop/airdrop_mint',
+      signers: [dropAddress],
+      args: [0, keys.publicKey],
+      addressMap
+    });
+
+    expect(txError).not.toBeNull()
+    expect(txError).toContain("[SupplyManager](increment): can't increment totalSupply as maxSupply has been reached")
   })
 })

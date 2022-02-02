@@ -32,6 +32,9 @@ pub contract BarterYardPackNFT: NonFungibleToken {
     pub struct PackPart: SupplyManager {
         pub let id: Int
         pub let name: String
+        pub let description: String
+        pub let ipfsThumbnailCid: String
+        pub let ipfsThumbnailPath: String
         pub let maxSupply: UInt16
         pub var totalSupply: UInt16
 
@@ -40,9 +43,20 @@ pub contract BarterYardPackNFT: NonFungibleToken {
             return self.totalSupply
         }
 
-        pub init(id: Int, name: String, maxSupply: UInt16, totalSupply: UInt16) {
+        pub init(
+            id: Int,
+            name: String,
+            description: String,
+            ipfsThumbnailCid: String,
+            ipfsThumbnailPath: String,
+            maxSupply: UInt16,
+            totalSupply: UInt16
+        ) {
             self.id = id
             self.name = name
+            self.description = description
+            self.ipfsThumbnailCid = ipfsThumbnailCid
+            self.ipfsThumbnailPath = ipfsThumbnailPath
             self.maxSupply = maxSupply
             self.totalSupply = totalSupply
         }
@@ -66,7 +80,8 @@ pub contract BarterYardPackNFT: NonFungibleToken {
 
         pub let name: String
         pub let description: String
-        pub let thumbnail: String
+        pub let ipfsThumbnailCid: String
+        pub let ipfsThumbnailPath: String
         pub let edition: UInt16
 
         init(
@@ -74,14 +89,16 @@ pub contract BarterYardPackNFT: NonFungibleToken {
             packPartId: Int,
             name: String,
             description: String,
-            thumbnail: String,
+            ipfsThumbnailCid: String,
+            ipfsThumbnailPath: String,
             edition: UInt16,
         ) {
             self.id = id
             self.packPartId = packPartId
             self.name = name
             self.description = description
-            self.thumbnail = thumbnail
+            self.ipfsThumbnailCid = ipfsThumbnailCid
+            self.ipfsThumbnailPath = ipfsThumbnailPath
             self.edition = edition
         }
     
@@ -98,8 +115,9 @@ pub contract BarterYardPackNFT: NonFungibleToken {
                     return MetadataViews.Display(
                         name: self.name,
                         description: self.description,
-                        thumbnail: MetadataViews.HTTPFile(
-                            url: self.thumbnail
+                        thumbnail: MetadataViews.IPFSFile(
+                            cid: self.ipfsThumbnailCid,
+                            path: self.ipfsThumbnailPath
                         ),
                     )
                 case Type<PackMetadataDisplay>():
@@ -204,8 +222,6 @@ pub contract BarterYardPackNFT: NonFungibleToken {
         // and deposit it in the recipients collection using their collection reference
         pub fun mintNFT(
             packPartId: Int,
-            description: String,
-            thumbnail: String,
         ) : @BarterYardPackNFT.NFT {
 
             let packPart = BarterYardPackNFT.packParts[packPartId]
@@ -213,13 +229,16 @@ pub contract BarterYardPackNFT: NonFungibleToken {
 
             let edition = packPart.increment()
 
+            BarterYardPackNFT.packParts[packPartId] = packPart
+
             // create a new NFT
             var newNFT <- create NFT(
                 id: BarterYardPackNFT.totalSupply,
                 packPartId: packPartId,
                 name: packPart.name,
-                description: description,
-                thumbnail: thumbnail,
+                description: packPart.description,
+                ipfsThumbnailCid: packPart.ipfsThumbnailCid,
+                ipfsThumbnailPath: packPart.ipfsThumbnailPath,
                 edition: edition,
             )
 
@@ -229,16 +248,29 @@ pub contract BarterYardPackNFT: NonFungibleToken {
         }
 
         // Create a new pack part
-        pub fun newPackMembers(packName: String, packSupply: UInt16) {
+        pub fun createNewPack(
+            name: String,
+            description: String,
+            ipfsThumbnailCid: String,
+            ipfsThumbnailPath: String,
+            maxSupply: UInt16,
+        ) {
             let newPackId = BarterYardPackNFT.packParts.length
             let packPart = PackPart(
                 id: newPackId,
-                name: packName,
-                maxSupply: packSupply,
+                name: name,
+                description: description,
+                ipfsThumbnailCid: ipfsThumbnailCid,
+                ipfsThumbnailPath: ipfsThumbnailPath,
+                maxSupply: maxSupply,
                 totalSupply: 0,
             )
             BarterYardPackNFT.packParts.insert(key: newPackId, packPart)
         }
+    }
+
+    pub fun getPackPartsIds(): [Int] {
+        return self.packParts.keys
     }
 
     pub fun getPackPartById(packPartId: Int): BarterYardPackNFT.PackPart? {

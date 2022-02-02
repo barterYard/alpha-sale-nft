@@ -1,8 +1,8 @@
-import NonFungibleToken from "../../contracts/NonFungibleToken.cdc"
+import NonFungibleToken from "../../contracts/lib/NonFungibleToken.cdc"
 import BarterYardPackNFT from "../../contracts/BarterYardPackNFT.cdc"
-import NFTAirDrop from "../../contracts/lib/NFTAirDrop.cdc"
+import NFTAirDrop from "../../contracts/NFTAirDrop.cdc"
 
-transaction(packPartId: Int, description: String, thumbnail: String, publicKey: String) {
+transaction(packPartId: Int, publicKey: String) {
     
     let admin: &BarterYardPackNFT.Admin
     let drop: &NFTAirDrop.Drop
@@ -36,8 +36,6 @@ transaction(packPartId: Int, description: String, thumbnail: String, publicKey: 
     execute {
         let token <- self.admin.mintNFT(
             packPartId: packPartId,
-            description: description,
-            thumbnail: thumbnail
         )
 
         self.drop.deposit(token: <- token, publicKey: publicKey.decodeHex())

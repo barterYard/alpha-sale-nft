@@ -5,10 +5,10 @@ pub struct AccountItem {
     pub let tokenId: UInt64
     pub let name: String
     pub let description: String
-    pub let thumbnail: {MetadataViews.File}
+    pub let thumbnail: String
     pub let owner: Address
 
-    init(tokenId: UInt64, name: String, description: String, thumbnail: {MetadataViews.File}, owner: Address) {
+    init(tokenId: UInt64, name: String, description: String, thumbnail: String, owner: Address) {
         self.tokenId = tokenId
         self.name = name
         self.description = description
@@ -27,7 +27,13 @@ pub fun main(address: Address, id: UInt64): AccountItem? {
         if let view = nft.resolveView(Type<MetadataViews.Display>()) {
             let display = view as! MetadataViews.Display
 
-            return AccountItem(tokenId: id, name: display.name, description: display.description, thumbnail: display.thumbnail, owner: address)
+            return AccountItem(
+                tokenId: id,
+                name: display.name,
+                description: display.description,
+                thumbnail: display.thumbnail.uri(),
+                owner: address
+            )
         }
     }
     return nil
