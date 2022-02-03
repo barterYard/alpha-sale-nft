@@ -34,7 +34,7 @@ pub contract BarterYardPackNFT: NonFungibleToken {
         pub let name: String
         pub let description: String
         pub let ipfsThumbnailCid: String
-        pub let ipfsThumbnailPath: String
+        pub let ipfsThumbnailPath: String?
         pub let maxSupply: UInt16
         pub var totalSupply: UInt16
 
@@ -48,7 +48,7 @@ pub contract BarterYardPackNFT: NonFungibleToken {
             name: String,
             description: String,
             ipfsThumbnailCid: String,
-            ipfsThumbnailPath: String,
+            ipfsThumbnailPath: String?,
             maxSupply: UInt16,
             totalSupply: UInt16
         ) {
@@ -81,7 +81,7 @@ pub contract BarterYardPackNFT: NonFungibleToken {
         pub let name: String
         pub let description: String
         pub let ipfsThumbnailCid: String
-        pub let ipfsThumbnailPath: String
+        pub let ipfsThumbnailPath: String?
         pub let edition: UInt16
 
         init(
@@ -90,7 +90,7 @@ pub contract BarterYardPackNFT: NonFungibleToken {
             name: String,
             description: String,
             ipfsThumbnailCid: String,
-            ipfsThumbnailPath: String,
+            ipfsThumbnailPath: String?,
             edition: UInt16,
         ) {
             self.id = id
@@ -252,7 +252,7 @@ pub contract BarterYardPackNFT: NonFungibleToken {
             name: String,
             description: String,
             ipfsThumbnailCid: String,
-            ipfsThumbnailPath: String,
+            ipfsThumbnailPath: String?,
             maxSupply: UInt16,
         ) {
             let newPackId = BarterYardPackNFT.packParts.length
