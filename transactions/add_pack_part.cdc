@@ -1,6 +1,6 @@
 import BarterYardPackNFT from "../contracts/BarterYardPackNFT.cdc"
 
-transaction(name: String, description: String, ipfsThumbnailCid: String, ipfsThumbnailPath: String, maxSupply: UInt16) {
+transaction(name: String, description: String, ipfsThumbnailCid: String, maxSupply: UInt16) {
     
     let admin: &BarterYardPackNFT.Admin
 
@@ -15,7 +15,7 @@ transaction(name: String, description: String, ipfsThumbnailCid: String, ipfsThu
             name: name,
             description: description,
             ipfsThumbnailCid: ipfsThumbnailCid,
-            ipfsThumbnailPath: ipfsThumbnailPath,
+            ipfsThumbnailPath: nil,
             maxSupply: maxSupply
         )
     }
