@@ -64,7 +64,6 @@ describe("BarterYardPackNFT", () => {
       "Alpha",
       "This alpha pass grant you a place in the first 1000 members of the pack",
       "ipfsCID",
-      "ipfsPath",
       1000
     ];
     let [_tx, txError] = await sendTransaction({ name: 'add_pack_part', signers, args, addressMap });
@@ -101,7 +100,6 @@ describe("BarterYardPackNFT", () => {
     const name = "Alpha"
     const description = "This alpha pass grant you a place in the first 1000 members of the pack"
     const ipfsCID = "ipfsCID"
-    const ipfsPath = "ipfsPath"
 
     // Create Pack Part
     await sendTransaction({
@@ -111,7 +109,6 @@ describe("BarterYardPackNFT", () => {
         name,
         description,
         ipfsCID,
-        ipfsPath,
         1000
       ],
       addressMap
@@ -154,7 +151,7 @@ describe("BarterYardPackNFT", () => {
       tokenId: 0,
       name,
       description,
-      thumbnail: `ipfs://${ipfsCID}/${ipfsPath}`,
+      thumbnail: `ipfs://${ipfsCID}`,
       owner: Alice,
     })
     expect(scriptError).toBeNull()
@@ -173,7 +170,6 @@ describe("BarterYardPackNFT", () => {
         "Alpha",
         "This alpha pass grant you a place in the first 1000 members of the pack",
         "ipfsCID",
-        "ipfsPath",
         1
       ],
       addressMap
