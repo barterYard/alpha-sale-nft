@@ -11,7 +11,7 @@ import { getAddressMap } from "./utils/helpers";
 import { generateKeyPair, generateNFTClaim } from "./utils/crypto";
 
 // Increase timeout if your tests failing due to timeout
-jest.setTimeout(10000);
+jest.setTimeout(30000);
 
 describe("BarterYardPackNFT", () => {
   beforeEach(async () => {
