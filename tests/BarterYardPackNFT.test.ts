@@ -157,6 +157,64 @@ describe("BarterYardPackNFT", () => {
     expect(scriptError).toBeNull()
   })
 
+  test('should not be able to claim NFT with another token', async () => {
+    await deployContracts();
+    const Alice = await getAccountAddress("Alice");
+    const addressMap = await getAddressMap()
+    const dropAddress = addressMap.BarterYardPackNFT
+
+    const name = "Alpha"
+    const description = "This alpha pass grant you a place in the first 1000 members of the pack"
+    const ipfsCID = "ipfsCID"
+
+    // Create Pack Part
+    await sendTransaction({
+      name: 'add_pack_part',
+      signers: [dropAddress],
+      args: [
+        name,
+        description,
+        ipfsCID,
+        1000
+      ],
+      addressMap
+    });
+
+    // Create NFT
+    const keys = generateKeyPair();
+    const otherKeys = generateKeyPair();
+
+    await sendTransaction({
+      name: 'airdrop/airdrop_mint',
+      signers: [dropAddress],
+      args: [0, keys.publicKey],
+      addressMap
+    });
+
+    // Setup user account
+    await sendTransaction({
+      name: 'setup_account',
+      signers: [Alice],
+      addressMap
+    });
+
+    const signature = generateNFTClaim(Alice, 0, otherKeys.privateKey)
+
+    // Redeem NFT
+    const [,txError] = await sendTransaction({
+      name: 'airdrop/claim_nft',
+      signers: [Alice],
+      args: [
+        dropAddress,
+        0,
+        signature,
+      ],
+      addressMap
+    });
+    expect(txError).not.toBeNull()
+  })
+
+
   test('should not be able to mint more than max supply', async () => {
     await deployContracts();
     const addressMap = await getAddressMap()
