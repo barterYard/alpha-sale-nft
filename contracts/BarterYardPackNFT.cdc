@@ -27,7 +27,7 @@ pub contract BarterYardPackNFT: NonFungibleToken {
         }
     }
 
-    /// PackPart represents a part of our futur werewolf pack.
+    /// PackPart represents a part of our future werewolf pack.
     /// eg: Alpha, Beta, Omega...
     pub struct PackPart: SupplyManager {
         pub let id: Int
