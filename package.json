@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "jest"
+    "test": "FLOW_TESTNET_PRIVATE_KEY=680fa28962650ef346a7edf23d63967b0fcf44958488d0d48f8539ece6e92eba jest"
   },
   "devDependencies": {
     "@babel/core": "^7.16.12",
