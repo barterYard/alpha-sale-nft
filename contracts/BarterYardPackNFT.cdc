@@ -6,8 +6,10 @@ pub contract BarterYardPackNFT: NonFungibleToken {
     pub var totalSupply: UInt64
 
     pub event ContractInitialized()
+    pub event Mint(id: UInt64, packPartId: Int, edition: UInt16)
     pub event Withdraw(id: UInt64, from: Address?)
     pub event Deposit(id: UInt64, to: Address?)
+    pub event Burn(id: UInt64)
 
     pub let CollectionStoragePath: StoragePath
     pub let CollectionPublicPath: PublicPath
@@ -129,6 +131,10 @@ pub contract BarterYardPackNFT: NonFungibleToken {
 
             return nil
         }
+
+        destroy() {
+          emit Burn(id: self.id)
+        }
     }
 
     pub resource interface BarterYardPackNFTCollectionPublic {
@@ -241,6 +247,8 @@ pub contract BarterYardPackNFT: NonFungibleToken {
                 ipfsThumbnailPath: packPart.ipfsThumbnailPath,
                 edition: edition,
             )
+
+            emit Mint(id: newNFT.id, packPartId: packPartId, edition: edition)
 
             BarterYardPackNFT.totalSupply = BarterYardPackNFT.totalSupply + 1
 

@@ -11,7 +11,7 @@ import { getAddressMap } from "./utils/helpers";
 import { generateKeyPair, generateNFTClaim } from "./utils/crypto";
 
 // Increase timeout if your tests failing due to timeout
-jest.setTimeout(30000);
+jest.setTimeout(50000);
 
 describe("BarterYardPackNFT", () => {
   beforeEach(async () => {
@@ -73,9 +73,14 @@ describe("BarterYardPackNFT", () => {
     // Create NFT
     const keys = generateKeyPair();
     args = [0, keys.publicKey];
-    [_tx, txError] = await sendTransaction({ name: 'airdrop/airdrop_mint', signers, args, addressMap });
-    
-    expect(txError).toBeNull()
+    const [{ events }, mintError] = await sendTransaction({ name: 'airdrop/airdrop_mint', signers, args, addressMap });
+
+    const mintEvent = events.find((e) =>
+      (e.type as string).endsWith("BarterYardPackNFT.Mint")
+    );
+
+    expect(mintError).toBeNull()
+    expect(mintEvent).toBeDefined();
   })
 
   test('should not create NFT if pack part was not created', async () => {
@@ -214,7 +219,6 @@ describe("BarterYardPackNFT", () => {
     expect(txError).not.toBeNull()
   })
 
-
   test('should not be able to mint more than max supply', async () => {
     await deployContracts();
     const addressMap = await getAddressMap()
@@ -253,5 +257,73 @@ describe("BarterYardPackNFT", () => {
 
     expect(txError).not.toBeNull()
     expect(txError).toContain("[SupplyManager](increment): can't increment totalSupply as maxSupply has been reached")
+  })
+
+  test('should emit burn event if NFT is destoyed', async () => {
+    await deployContracts();
+    const Alice = await getAccountAddress("Alice");
+    const addressMap = await getAddressMap()
+    const dropAddress = addressMap.BarterYardPackNFT
+
+    const name = "Alpha"
+    const description = "This alpha pass grant you a place in the first 1000 members of the pack"
+    const ipfsCID = "ipfsCID"
+
+    // Create Pack Part
+    await sendTransaction({
+      name: 'add_pack_part',
+      signers: [dropAddress],
+      args: [
+        name,
+        description,
+        ipfsCID,
+        1000
+      ],
+      addressMap
+    });
+
+    // Create NFT
+    const keys = generateKeyPair();
+    await sendTransaction({
+      name: 'airdrop/airdrop_mint',
+      signers: [dropAddress],
+      args: [0, keys.publicKey],
+      addressMap
+    });
+
+    // Setup user account
+    await sendTransaction({
+      name: 'setup_account',
+      signers: [Alice],
+      addressMap
+    });
+
+    const signature = generateNFTClaim(Alice, 0, keys.privateKey)
+
+    // Redeem NFT
+    const [,txError] = await sendTransaction({
+      name: 'airdrop/claim_nft',
+      signers: [Alice],
+      args: [
+        dropAddress,
+        0,
+        signature,
+      ],
+      addressMap
+    });
+
+    // User Delete collection
+    const [{ events }, deleteCollectionError] = await sendTransaction({
+      name: 'delete_collection',
+      signers: [Alice],
+      addressMap
+    });
+
+    const deleteCollectionEvent = events.find((e) =>
+      (e.type as string).endsWith("BarterYardPackNFT.Burn")
+    );
+
+    expect(deleteCollectionError).toBeNull()
+    expect(deleteCollectionEvent).toBeDefined();
   })
 })
